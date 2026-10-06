@@ -13,7 +13,7 @@ Benchmarking multiple pretrained speech-to-text models on Basque (Euskara), comp
 **Basque-specific prior work:**
 - [Whisper-LM](https://arxiv.org/abs/2503.23542) (de Zuazo et al., 2025) fine-tunes Whisper on Basque (among other languages) and augments it with statistical/LLM-based language models, reporting WER improvements up to 51% in-distribution and 34% out-of-distribution. This paper is the direct source of this project's `whisper-tiny-eu` comparison model, and the same team has released a family of Basque Whisper fine-tunes (base, small, medium, tiny) at various sizes.
 - A SpeechLM fine-tuned on Basque (HiTZ Center) achieved 8.09% WER in-distribution but underperformed notably on out-of-distribution Basque test data, reinforcing the GigaSpeechBench finding above.
-- Work evaluating ASR on Basque dialectal/spontaneous broadcast speech found recognition degrades significantly versus standard speech, with recurring phonological error patterns, directly motivating this project's accent-based error breakdown.
+- Work evaluating ASR on Basque dialectal/spontaneous broadcast speech found recognition degrades significantly versus standard speech, with recurring phonological error patterns. This project's test set (Common Voice, scripted/standard speech) does not cover that dialectal gap directly, noted as a limitation below rather than addressed here.
 
 **The gap this project addresses:** despite this body of work, no existing paper benchmarks multiple modern ASR models (general-purpose and Basque-specific) on the *same* Basque test set under the *same* conditions. Individual papers report individual models at different times on different splits. This project builds that single, reproducible comparison table, and additionally reports how models with no claimed Basque support perform when tested zero-shot on the language, a comparison point absent from the literature above.
 
@@ -23,7 +23,7 @@ Benchmarking multiple pretrained speech-to-text models on Basque (Euskara), comp
 |---|---|---|
 | Whisper-large-v3 | Yes | 99 languages officially supported, Basque included |
 | Whisper-tiny-eu | Yes | Fine-tuned specifically for Basque |
-| SenseVoice-Large | No | Covers English, Chinese, Cantonese, Japanese, Korean only; zero-shot test for Basque |
+| SenseVoice-Small | No | Covers English, Chinese, Cantonese, Japanese, Korean only; zero-shot test for Basque (SenseVoice-Large's weights are not publicly released) |
 | wav2vec2-Basque (this project) | Yes | Fine-tuned specifically for Basque |
 
 ## Data
