@@ -48,31 +48,38 @@ Requires a HuggingFace token (`HF_TOKEN`) and a Mozilla Data Collective API key,
 
 ## Results
 
-*Preliminary: based on a 200-clip sample of the 14,801-clip test set, same clips and conditions across all models. Full-set results (all 14,801 clips) to follow; numbers below may shift slightly, though the overall pattern is expected to hold given the size of the gaps observed.*
+Full official test split of Common Voice Basque v27 (14,801 clips), same clips and conditions across all four models.
 
 | Model | WER | CER | Substitutions | Insertions | Deletions | avg RTF | Basque officially supported? |
 |---|---|---|---|---|---|---|---|
-| wav2vec2-Basque (own) | 0.128 | 0.020 | 170 | 27 | 9 | 0.031 | Yes (fine-tuned) |
-| Whisper-tiny-eu | 0.272 | 0.054 | 345 | 49 | 44 | 0.056 | Yes (fine-tuned) |
-| Whisper-large-v3 | 0.355 | 0.065 | 445 | 68 | 59 | 0.300 | Yes |
-| SenseVoice-Small | 1.019 | 0.899 | 891 | 33 | 717 | 0.017 | No (zero-shot) |
+| wav2vec2-Basque (own) | 0.155 | 0.028 | 14,929 | 1,927 | 1,411 | 0.031 | Yes (fine-tuned) |
+| Whisper-tiny-eu | 0.332 | 0.081 | 30,529 | 4,608 | 3,855 | 0.058 | Yes (fine-tuned) |
+| Whisper-large-v3 | 0.451 | 0.111 | 38,368 | 9,485 | 5,115 | 0.344 | Yes |
+| SenseVoice-Small | 1.015 | 0.890 | 60,118 | 1,946 | 57,263 | 0.018 | No (zero-shot) |
 
-The own fine-tuned wav2vec2 model achieves the lowest WER and CER of all four, ahead of both Whisper variants, with a notably low deletion count (9) relative to its substitution count (170), suggesting its errors are mostly close-but-wrong rather than missed words entirely. SenseVoice-Small, the only model with no claimed Basque support, produces a WER above 1.0 (more errors than words in the reference) and a CER near 0.9, with deletions dominating its error breakdown, a markedly different error pattern from the other three models, where substitutions dominate. It is also by far the fastest model (RTF 0.017), roughly 18x faster than Whisper-large-v3.
+The own fine-tuned wav2vec2 model has the lowest WER and CER of the four, ahead of both Whisper variants. SenseVoice-Small, the only model with no claimed Basque support, has a WER above 1.0 (more errors than words in the reference) and a CER near 0.9. It is also the fastest model (RTF 0.018), roughly 20x faster than Whisper-large-v3.
+
+I first ran 200 and then 2,000 clips as sanity checks. The ranking was identical at all three sizes, but WER crept up for every model except SenseVoice as the sample grew (for example wav2vec2-Basque: 0.128, 0.142, 0.155). The first rows of the test file seem to be easier than the rest, so only the full-set numbers are reported here.
 
 ## Discussion
 
-**Specialization outperforms generalist scale.** The clearest finding is that a smaller model fine-tuned specifically on Basque (wav2vec2-Basque) outperforms a much larger generalist model (Whisper-large-v3) trained across 99 languages, by a wide margin on both WER and CER. This is a well-documented pattern in low-resource ASR rather than a surprising result, but it is a useful concrete data point for anyone deciding between fine-tuning a smaller model versus relying on a large multilingual one for a specific low-resource language.
+**Specialization beat generalist scale.** A smaller model fine-tuned specifically on Basque (wav2vec2-Basque) outperformed a much larger model trained across 99 languages (Whisper-large-v3) by a wide margin on both WER and CER. As a junior in this area, I read this as consistent with what the low-resource ASR literature describes, and as a concrete data point for choosing between fine-tuning a smaller model and relying on a large multilingual one.
 
-**Speed and accuracy trade off starkly when a model has zero exposure to the target language.** SenseVoice-Small's architecture is built for speed (non-autoregressive decoding, per Du et al. 2024), and that speed advantage holds here. But it does not transfer to a language the model was never trained on: its WER and CER indicate the transcriptions are largely unusable, and the dominance of deletions (rather than substitutions) in its error breakdown suggests it may be missing or misattributing whole segments of speech, possibly connected to the language-ID tag in its raw output defaulting to English rather than Basque (see Setup notes). This result lines up with the GigaSpeechBench (2026) finding that models performing well on standard benchmarks can degrade substantially outside their trained distribution, here taken to an extreme case of a language entirely outside that distribution.
+**Speed did not help the model with no Basque exposure.** SenseVoice-Small is built for speed (non-autoregressive decoding, per An et al. 2024), and that held up here. But its transcripts were largely unusable on Basque. In the one raw output I inspected, the language tag was `<|en|>`, so it may be treating the audio as English. I only looked at that single clip, so this is a hypothesis, not a finding. This is in the same direction as the GigaSpeechBench (2026) observation that models can degrade a lot outside their trained distribution, here in an extreme case where the language was never in training.
 
-**Error type, not just WER, differentiates the models.** The three Basque-supporting models all show substitution-dominant error profiles (getting close to the right word, but not exact), consistent with the "dropped sounds and merged word boundaries" pattern noted in related Basque dialectal ASR work, rather than wholesale failure. SenseVoice-Small's deletion-dominant profile is qualitatively different, supporting the interpretation that it is failing to recognize Basque as Basque, not simply making more of the same kind of error.
+**The shape of the errors differs, not just the totals.** For the three Basque-supporting models, substitutions make up roughly 70 to 80% of errors and deletions under 10%. SenseVoice-Small is different: deletions are about 48% of its errors. Substitutions are still its largest category, so I would describe it as an unusually high share of dropped words, not as deletion-dominated.
 
-**Caveats on this preliminary result.** The wav2vec2-Basque model was fine-tuned on `HiTZ/composite_corpus_eu_v2.1`, which may share distributional characteristics with the Common Voice test set used here (recording style, speaker demographics, sentence domains). This does not invalidate the result, the test split was not used in training, but it is a fairer comparison of "a model tuned on Basque-like data" than of fully out-of-domain generalization, and is worth stating plainly rather than implying a bigger advantage than the setup supports.
+**Whisper-large-v3 insertions are unexplained.** Its insertions grew faster than the sample did (705 at 2,000 clips, 9,485 at 14,801) and its CER rose from 0.079 to 0.111. One possible explanation is hallucinated or repeated text on some clips, which I have not checked. Reading the clips with the most insertions would be the next step.
+
+**Caveat on the wav2vec2-Basque result.** It was fine-tuned on `HiTZ/composite_corpus_eu_v2.1`, and I have not verified whether any of this corpus overlaps with the Common Voice v27 test clips. If it does, the result would be optimistic. Even without overlap, the training data may resemble Common Voice (recording style, sentence domains), so this is partly a comparison of a model tuned on Basque-like data against general models.
 
 ## Limitations
 
-- Test set limited to Common Voice's standard scripted speech; does not cover dialectal or spontaneous speech, where prior work shows ASR performance degrades.
-- 200-clip sample used for initial Whisper-large-v3 results; full 14,801-clip run pending for final comparability across models.
+- Test set is Common Voice's scripted, standard-register speech. It does not cover dialectal or spontaneous Basque, where prior work shows performance drops.
+- Possible train/test overlap for the own wav2vec2 model has not been checked (see Discussion).
+- One run per model, no confidence intervals, and no per-accent breakdown yet (the `accents` column is available in the test set).
+- Normalization is lowercase plus punctuation removal only, applied identically to all models. Different choices could shift WER somewhat.
+- SenseVoice-Large is not publicly released, so only the Small variant was tested.
 
 ## License
 
