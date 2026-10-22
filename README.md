@@ -6,7 +6,7 @@ Benchmarking multiple pretrained speech-to-text models on Basque (Euskara), comp
 
 **Foundational survey:** Besacier et al. (2014), "Automatic speech recognition for under-resourced languages: A survey" (*Speech Communication*), remains the base reference point the field builds from when discussing low-resource ASR challenges (data scarcity, acoustic/language modeling difficulty, evaluation standardisation).
 
-**Current direction in the field — robustness over leaderboard numbers:** recent work has shifted from reporting single-benchmark accuracy toward testing whether models that look strong on clean, standard benchmarks (Common Voice, FLEURS) hold up under real-world conditions. [GigaSpeechBench](https://arxiv.org/html/2606.28884v3) (2026) found that systems nearing saturation on standard benchmarks "degrade substantially on in-the-wild low-resource and dialectal speech." This is the exact pattern prior Basque-specific work has already flagged (see below), and it's the central motivation for this project: a model's published WER doesn't tell you how it behaves on a specific low-resource language's edge cases.
+**Current direction in the field: robustness over leaderboard numbers:** recent work has shifted from reporting single-benchmark accuracy toward testing whether models that look strong on clean, standard benchmarks (Common Voice, FLEURS) hold up under real-world conditions. [GigaSpeechBench](https://arxiv.org/html/2606.28884v3) (2026) found that systems nearing saturation on standard benchmarks "degrade substantially on in-the-wild low-resource and dialectal speech." This is the exact pattern prior Basque-specific work has already flagged (see below), and it's the central motivation for this project: a model's published WER doesn't tell you how it behaves on a specific low-resource language's edge cases.
 
 **Multilingual low-resource benchmarking at scale:** [LoASR-Bench](https://arxiv.org/html/2603.20042) (2026) evaluates speech-language models across 25 low-resource languages spanning 9 language families, but Basque is not among them, an example of how even dedicated low-resource benchmarks still leave language-isolate gaps like Basque uncovered.
 
@@ -41,10 +41,10 @@ Requires a HuggingFace token (`HF_TOKEN`) and a Mozilla Data Collective API key,
 
 ## Metrics
 
-- **WER** (Word Error Rate) — word-level accuracy
-- **CER** (Character Error Rate) — character-level accuracy, important for Basque given its long, agglutinative word forms
-- **RTF** (Real-Time Factor) — inference time relative to audio duration; lower is faster
-- **Error breakdown** — substitutions, insertions, deletions per model
+- **WER** (Word Error Rate): word-level accuracy
+- **CER** (Character Error Rate): character-level accuracy, important for Basque given its long, agglutinative word forms
+- **RTF** (Real-Time Factor): inference time relative to audio duration; lower is faster
+- **Error breakdown**: substitutions, insertions, deletions per model
 
 ## Results
 
