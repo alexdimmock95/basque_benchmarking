@@ -61,6 +61,19 @@ The own fine-tuned wav2vec2 model has the lowest WER and CER of the four, ahead 
 
 I first ran 200 and then 2,000 clips as sanity checks. The ranking was identical at all three sizes, but WER crept up for every model except SenseVoice as the sample grew (for example wav2vec2-Basque: 0.128, 0.142, 0.155). The first rows of the test file seem to be easier than the rest, so only the full-set numbers are reported here.
 
+## Train/test overlap check
+
+The wav2vec2-Basque model was trained on the first 128,000 rows of `HiTZ/composite_corpus_eu_v2.1`, which includes Common Voice material, so I checked whether test sentences also appear in those rows. The corpus has no clip IDs, so I matched on text (lowercased, punctuation removed, exact match). This shows the same sentence appears in both, not the same audio, since a different speaker may have read it.
+
+1,739 test clips (11.7%) have a sentence that also appears in those training rows. I scored the model separately on the two groups:
+
+| Subset | Clips | WER | CER |
+|---|---|---|---|
+| Seen sentences | 1,739 | 0.147 | 0.0288 |
+| Unseen sentences | 13,070 | 0.156 | 0.0282 |
+
+The seen sentences score about 0.9 percentage points better on WER and slightly worse on CER, so I found no clear sign that overlap inflates the headline result. The seen group is much smaller and I did not test whether the gap is statistically meaningful, so I would not read much into a difference this size.
+
 ## Discussion
 
 **Specialization beat generalist scale.** A smaller model fine-tuned specifically on Basque (wav2vec2-Basque) outperformed a much larger model trained across 99 languages (Whisper-large-v3) by a wide margin on both WER and CER. As a junior in this area, I read this as consistent with what the low-resource ASR literature describes, and as a concrete data point for choosing between fine-tuning a smaller model and relying on a large multilingual one.
@@ -71,13 +84,12 @@ I first ran 200 and then 2,000 clips as sanity checks. The ranking was identical
 
 **Whisper-large-v3 insertions are unexplained.** Its insertions grew faster than the sample did (705 at 2,000 clips, 9,485 at 14,801) and its CER rose from 0.079 to 0.111. One possible explanation is hallucinated or repeated text on some clips, which I have not checked. Reading the clips with the most insertions would be the next step.
 
-**Caveat on the wav2vec2-Basque result.** It was fine-tuned on `HiTZ/composite_corpus_eu_v2.1`, and I have not verified whether any of this corpus overlaps with the Common Voice v27 test clips. If it does, the result would be optimistic. Even without overlap, the training data may resemble Common Voice (recording style, sentence domains), so this is partly a comparison of a model tuned on Basque-like data against general models.
+**Caveat on the wav2vec2-Basque result.** It was fine-tuned on `HiTZ/composite_corpus_eu_v2.1`. About 11.7% of test sentences also appear in the training rows I checked (see the overlap check above), but the model scored only slightly better on those than on unseen sentences, so overlap does not seem to explain its lead. The training data may still resemble Common Voice in recording style and sentence domains, so this is partly a comparison of a model tuned on Basque-like data against general models.
 
 ## Limitations
 
 - Test set is Common Voice's scripted, standard-register speech. It does not cover dialectal or spontaneous Basque, where prior work shows performance drops.
-- Possible train/test overlap for the own wav2vec2 model has not been checked (see Discussion).
-- One run per model, no confidence intervals, and no per-accent breakdown yet (the `accents` column is available in the test set).
+- Train/test overlap for the own wav2vec2 model was checked at sentence level only, against the first 128,000 training rows. It does not detect identical audio, or near-duplicate sentences that differ after normalisation.- One run per model, no confidence intervals, and no per-accent breakdown yet (the `accents` column is available in the test set).
 - Normalization is lowercase plus punctuation removal only, applied identically to all models. Different choices could shift WER somewhat.
 - SenseVoice-Large is not publicly released, so only the Small variant was tested.
 
