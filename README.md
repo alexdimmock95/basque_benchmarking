@@ -28,7 +28,7 @@ Benchmarking multiple pretrained speech-to-text models on Basque (Euskara), comp
 
 ## Data
 
-[Common Voice Basque (v27)](https://datacollective.mozillafoundation.org), official test split: 14,801 clips. Downloaded via the Mozilla Data Collective API (Common Voice is no longer hosted on HuggingFace as of October 2025).
+[Common Voice Basque (v27)](https://datacollective.mozillafoundation.org), official test split: 14,809 clips. Downloaded via the Mozilla Data Collective API (Common Voice is no longer hosted on HuggingFace as of October 2025).
 
 ## Setup
 
@@ -48,7 +48,7 @@ Requires a HuggingFace token (`HF_TOKEN`) and a Mozilla Data Collective API key,
 
 ## Results
 
-Full official test split of Common Voice Basque v27 (14,801 clips), same clips and conditions across all four models.
+Full official test split of Common Voice Basque v27 (14,809 clips), same clips and conditions across all four models.
 
 | Model | WER | CER | Substitutions | Insertions | Deletions | avg RTF | Basque officially supported? |
 |---|---|---|---|---|---|---|---|
@@ -82,7 +82,7 @@ The seen sentences score about 0.9 percentage points better on WER and slightly 
 
 **The shape of the errors differs, not just the totals.** For the three Basque-supporting models, substitutions make up roughly 70 to 80% of errors and deletions under 10%. SenseVoice-Small is different: deletions are about 48% of its errors. Substitutions are still its largest category, so I would describe it as an unusually high share of dropped words, not as deletion-dominated.
 
-**Whisper-large-v3 insertions are unexplained.** Its insertions grew faster than the sample did (705 at 2,000 clips, 9,485 at 14,801) and its CER rose from 0.079 to 0.111. One possible explanation is hallucinated or repeated text on some clips, which I have not checked. Reading the clips with the most insertions would be the next step.
+**Whisper-large-v3 insertions are unexplained.** Its insertions grew faster than the sample did (705 at 2,000 clips, 9,485 at 14,809) and its CER rose from 0.079 to 0.111. One possible explanation is hallucinated or repeated text on some clips, which I have not checked. Reading the clips with the most insertions would be the next step.
 
 **Caveat on the wav2vec2-Basque result.** It was fine-tuned on `HiTZ/composite_corpus_eu_v2.1`. About 11.7% of test sentences also appear in the training rows I checked (see the overlap check above), but the model scored only slightly better on those than on unseen sentences, so overlap does not seem to explain its lead. The training data may still resemble Common Voice in recording style and sentence domains, so this is partly a comparison of a model tuned on Basque-like data against general models.
 
